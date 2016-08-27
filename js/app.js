@@ -44,61 +44,68 @@ $.fn.extend({
 
 
 
-	$('.game-square').click(function(e){
-		// alert('you clicked')
-        if (turn % 2 == 0) {      // Checks if turn is even, if so it appends an X
-        $(this).append('<i class="fa fa-times fa-2x" aria-hidden="true"></i>');
-		$(this).find('.fa-times').animateCss('flipInX');  // Find the fa-times only within this current game square
-        xArray.push($(this).data('number'));   // pushes the square that was clicked into xArray to be compared with win condition later 
-        console.log(xArray);
-        } else {
-        $(this).append('<i class="fa fa-circle-o fa-2x" aria-hidden="true"></i>');
-        $(this).find('.fa-circle-o').animateCss('flipInY');
-        oArray.push($(this).data('number'));
-        console.log(oArray);
-        }
-
-        $(this).off('click');   // Makes the click funtion only happen once.  After an X or O is appended to the square, it can't be clicked again.
-
-        turn++; 
-
-        if (turn > 3){
-            checkWin();
-        }      
-
-	});
+	$('.game-square').click(clickBox);
 
 
-    var checkWin = function(winCondition, player){
-    if (xArray)
-    for(var i = 0; i < player.length; i++){
-        var current = player[i];
+    var checkWin = function(winCondition, player){  // when arrays are passed, only the two you want to check are passed here
+    
+    for(var i = 0; i < winCondition.length; i++){
+        var current = winCondition[i];
         var correct = true;
         for(var j = 0; j < current.length; j++){
             var n = current[j];
-            correct = correct && winCondition.includes(n);
+            correct = correct && player.includes(n);
         }
         if(correct){
-            return true;
-            winner();
+            return true;            
         }
     }
     return false;
 }
 
 
-    function winner() {
-        $('.winner').show();
-        $('.winner').append('<p>' +   + 'has won!</p><p>Click New Game to play again.</p>');   //put var for winner btw +
+    function clickBox(){
+        
+        if (turn % 2 == 0) {      // Checks if turn is even, if so it appends an X
+        $(this).append('<i class="fa fa-times fa-2x" aria-hidden="true"></i>');
+        $(this).find('.fa-times').animateCss('flipInX');  // Find the fa-times only within this current game square
+        xArray.push($(this).data('number'));   // pushes the square that was clicked into xArray to be compared with win condition later 
+        console.log(xArray);
+
+        if (checkWin(winCondition, xArray)){  // call checkWin here when you can pass in the correct arrays
+            winner('Player X');
+        }
+        } else {
+        $(this).append('<i class="fa fa-circle-o fa-2x" aria-hidden="true"></i>');
+        $(this).find('.fa-circle-o').animateCss('flipInY');
+        oArray.push($(this).data('number'));
+        console.log(oArray);
+        if (checkWin(winCondition, oArray)){
+            winner('Player O');
+        }
+        }
+
+        $(this).off('click');   // Makes the click function only happen once.  After an X or O is appended to the square, it can't be clicked again.
+
+        turn++;    
+    
+    }
+
+
+
+    function winner(player) {
+        $('.winner').fadeIn(500);
+        $('.winner').append('<p> ' + player + ' has won!</p><p>Click New Game to play again.</p>');   
     }
 
     function reset() {
         $('.game-square').text('');
-        $('.game-square').on('click');
+        $('.game-square').off('click');
+        $('.game-square').on('click', clickBox);
         xArray = [];
         oArray = [];
         turn = 0;
-        console.log(xArray);
+        $('.winner').fadeOut(500);        
 
     }
 
